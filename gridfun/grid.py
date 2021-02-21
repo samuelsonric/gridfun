@@ -157,13 +157,19 @@ class Grid(Callable, Sequence):
         return cls(tuple(it))
 
     @classmethod
+    def from_axis(cls, axis):
+        return cls((axis,))
+
+    @classmethod
     def linspace(cls, start, stop, num=50):
-        return cls.from_iterable(
-            map(
+        arr = np.linspace(start, stop, num).T
+        if arr.ndim > 1:
+            return cls.from_iterable(map(
                 Axis.halfopen,
-                np.linspace(start, stop, num).T,
-            )
-        )
+                arr,
+            ))
+
+        return cls.from_axis(Axis.halfopen(arr))
 
     @classmethod
     def empty(cls, ndim):

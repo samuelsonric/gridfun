@@ -1,10 +1,10 @@
+from bisect import bisect
 from collections.abc import Callable, Sequence
 from functools import partial, reduce, cached_property
 from heapq import merge
 from itertools import starmap, repeat, groupby, compress, chain
-from operator import attrgetter, itemgetter, methodcaller
 from math import inf
-from bisect import bisect
+from operator import attrgetter, itemgetter, methodcaller
 
 import numpy as np
 

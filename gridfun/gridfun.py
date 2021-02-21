@@ -7,8 +7,8 @@ from operator import attrgetter
 import numpy as np
 from wrapt import decorator
 
-from gridfun.grid import Grid, join_grids
 from gridfun.abc import SignedMeasure
+from gridfun.grid import Grid, join_grids
 
 
 ############ Y ############

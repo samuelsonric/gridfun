@@ -149,9 +149,10 @@ def maximum(a, b, /):
 
 @binary_op(inj=False, sc=False)
 def mod(a, b, /):
-    return np.multiply(
+    return np.where(
+        b == 0,
         a,
-        np.equal(a, b),
+        0,
     )
 
 

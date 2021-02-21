@@ -211,15 +211,17 @@ class Kernel(Sequence):
     @classmethod
     def conditional(cls, sm, ck):
         if not isinstance(ck, Kernel):
-           ck = cls.composition(ck)
+            ck = cls.composition(ck)
         return cls(
-            Rows.from_iter(map(
-                sm.__mul__,
+            Rows.from_iter(
                 map(
-                    sm.normalize,
-                    ck.cols,
-                ),
-            )),
+                    sm.__mul__,
+                    map(
+                        sm.normalize,
+                        ck.cols,
+                    ),
+                )
+            ),
             ck.cols,
         )
 

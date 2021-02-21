@@ -116,21 +116,24 @@ def subtract(a, b, /):
 
 
 @binary_op(inj=True, sc=True)
-def multiply(a, b, /): 
-    return  np.multiply(
-        np.where(b!=0, a, 0),
-        np.where(a!=0, b, 0),
+def multiply(a, b, /):
+    return np.multiply(
+        np.where(b != 0, a, 0),
+        np.where(a != 0, b, 0),
     )
 
 
 @binary_op(inj=True, sc=True)
 def floor_divide(a, b, /):
-    w = (b!=0)
-    return np.divide(
-        a,
-        b,
-        where=w,
-    ) * w
+    w = b != 0
+    return (
+        np.divide(
+            a,
+            b,
+            where=w,
+        )
+        * w
+    )
 
 
 @binary_op(inj=False, sc=False)
@@ -336,10 +339,10 @@ class GridFun(SignedMeasure, Callable):
         return self.y.size
 
     @cached_property
-    def leb(self): 
+    def leb(self):
         arr = np.multiply(
-            np.where(self.y!=0, self.grid.leb, 0),
-            np.where(self.grid.leb!=0, self.y, 0),
+            np.where(self.y != 0, self.grid.leb, 0),
+            np.where(self.grid.leb != 0, self.y, 0),
         )
         return arr.sum()
 

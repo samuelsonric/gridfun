@@ -125,14 +125,9 @@ def multiply(a, b, /):
 
 @binary_op(inj=True, sc=True)
 def floor_divide(a, b, /):
-    w = b != 0
-    return (
-        np.divide(
-            a,
-            b,
-            where=w,
-        )
-        * w
+    return np.divide(
+        np.where(b != 0, a, 0),
+        np.where(b != 0, b, 1),
     )
 
 

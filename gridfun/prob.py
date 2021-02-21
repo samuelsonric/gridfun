@@ -5,7 +5,7 @@ from operator import methodcaller
 
 import numpy as np
 
-from step.abc import SignedMeasure
+from gridfun.abc import SignedMeasure
 
 
 ############ Dirac Measures ############
@@ -194,18 +194,33 @@ class Kernel(Sequence):
         )
 
     @classmethod
-    def from_measure(cls, m):
+    def from_measure(cls, sm):
         return cls.from_seqs(
-            (m,),
+            (sm,),
             (1,),
         )
 
     @classmethod
-    def koopman(cls, gf):
+    def composition(cls, gf):
         u = np.unique(gf.y)
         return cls.from_iters(
             map(Dirac, u),
             map(gf.preimg, u),
+        )
+
+    @classmethod
+    def conditional(cls, sm, ck):
+        if not isinstance(ck, Kernel):
+           ck = cls.composition(ck)
+        return cls(
+            Rows.from_iter(map(
+                sm.__mul__,
+                map(
+                    sm.normalize,
+                    ck.cols,
+                ),
+            )),
+            ck.cols,
         )
 
     def __len__(self):
@@ -229,7 +244,7 @@ class Kernel(Sequence):
         return NotImplemented
 
     def __rmatmul__(self, other):
-        if isinstance(other, (Callabe, Number)):
+        if isinstance(other, (Callable, Number)):
             return (other @ self.cols) @ self.rows
 
         return NotImplemented

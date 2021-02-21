@@ -1,3 +1,4 @@
+from gridfun.abc import normalize
 from gridfun.grid import Grid, Axis, Endpoint
 from gridfun.gridfun import (
     GridFun,

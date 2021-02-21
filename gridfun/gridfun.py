@@ -7,8 +7,8 @@ from operator import attrgetter
 import numpy as np
 from wrapt import decorator
 
-from step.grid import Grid, join_grids
-from step.abc import SignedMeasure
+from gridfun.grid import Grid, join_grids
+from gridfun.abc import SignedMeasure
 
 
 ############ Y ############
@@ -115,29 +115,22 @@ def subtract(a, b, /):
     )
 
 
-"""
 @binary_op(inj=True, sc=True)
-def multiply(a, b, /):
-    return np.multiply(
-        a,
-        b,
-        where=(a != 0) & (b != 0),
+def multiply(a, b, /): 
+    return  np.multiply(
+        np.where(b!=0, a, 0),
+        np.where(a!=0, b, 0),
     )
-"""
-
-
-@binary_op(inj=True, sc=True)
-def multiply(a, b, /):
-    return a * b * ((a != 0) & (b != 0))
 
 
 @binary_op(inj=True, sc=True)
 def floor_divide(a, b, /):
+    w = (b!=0)
     return np.divide(
         a,
         b,
-        where=(b != 0),
-    )
+        where=w,
+    ) * w
 
 
 @binary_op(inj=False, sc=False)
@@ -203,8 +196,17 @@ def preimg(a, b, /):
 
 
 @scalar_op(inj=False)
-def clip(a, b, /):
+def clip(a, a_min, a_max, /):
     return np.clip(
+        a,
+        a_min,
+        a_max,
+    )
+
+
+@scalar_op(inj=False)
+def power(a, b, /):
+    return np.power(
         a,
         b,
     )
@@ -334,11 +336,10 @@ class GridFun(SignedMeasure, Callable):
         return self.y.size
 
     @cached_property
-    def leb(self):
+    def leb(self): 
         arr = np.multiply(
-            self.grid.leb,
-            self.y,
-            where=(self.grid.leb != 0) & (self.y != 0),
+            np.where(self.y!=0, self.grid.leb, 0),
+            np.where(self.grid.leb!=0, self.y, 0),
         )
         return arr.sum()
 
@@ -391,10 +392,14 @@ class GridFun(SignedMeasure, Callable):
         return mod(other, self)
 
     def __matmul__(self, other):
-        return (self * other).leb
+        if isinstance(other, (GridFun, Number)):
+            return (self * other).leb
+        return NotImplemented
 
     def __rmatmul__(self, other):
-        return (other * self).leb
+        if isinstance(other, (GridFun, Number)):
+            return (other * self).leb
+        return NotImplemented
 
     def tensor_prod(self, other):
         return tensor_prod_gf_gf(self, other)
@@ -410,6 +415,12 @@ class GridFun(SignedMeasure, Callable):
 
     def preimg(self, x):
         return preimg(self, x)
+
+    def clip(self, a_min, a_max):
+        return clip(self, a_min, a_max)
+
+    def __pow__(self, x):
+        return power(self, x)
 
     def __eq__(self, other):
         return equal(self, other)

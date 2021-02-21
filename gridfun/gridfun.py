@@ -159,7 +159,7 @@ def tensor_prod_gf_gf(a, b, /):
     if isinstance(a, GridFun) and isinstance(b, GridFun):
         return autocompress(
             GridFun(
-                Grid.from_iterable(chain(a.grid, b.grid)),
+                Grid.from_iter(chain(a.grid, b.grid)),
                 np.tensordot(a.y, b.y, axes=0),
             )
         )

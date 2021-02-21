@@ -48,7 +48,7 @@ class Axis(Callable, Sequence):
         self.eps = eps
 
     @classmethod
-    def from_iterable(cls, it):
+    def from_iter(cls, it):
         return cls(tuple(it))
 
     @classmethod
@@ -81,7 +81,7 @@ class Axis(Callable, Sequence):
         )
 
     def compress(self, selectors):
-        return self.from_iterable(
+        return self.from_iter(
             compress(
                 self,
                 selectors,
@@ -153,7 +153,7 @@ class Grid(Callable, Sequence):
         self.axes = axes
 
     @classmethod
-    def from_iterable(cls, it):
+    def from_iter(cls, it):
         return cls(tuple(it))
 
     @classmethod
@@ -164,16 +164,18 @@ class Grid(Callable, Sequence):
     def linspace(cls, start, stop, num=50):
         arr = np.linspace(start, stop, num).T
         if arr.ndim > 1:
-            return cls.from_iterable(map(
-                Axis.halfopen,
-                arr,
-            ))
+            return cls.from_iter(
+                map(
+                    Axis.halfopen,
+                    arr,
+                )
+            )
 
         return cls.from_axis(Axis.halfopen(arr))
 
     @classmethod
     def empty(cls, ndim):
-        return cls.from_iterable(repeat(Axis.empty(), ndim))
+        return cls.from_iter(repeat(Axis.empty(), ndim))
 
     @cached_property
     def shape(self):

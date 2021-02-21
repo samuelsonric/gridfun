@@ -164,6 +164,8 @@ def tensor_prod_gf_gf(a, b, /):
             )
         )
 
+    return NotImplemented
+
 
 ############ Scalar Operations ############
 

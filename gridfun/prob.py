@@ -256,6 +256,3 @@ class Kernel(Sequence):
 
     def __rmul__(self, other):
         return tensor_prod(self, other)
-
-    def __repr__(self):
-        return f"{type(self).__name__}()"

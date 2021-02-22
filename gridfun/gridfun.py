@@ -172,10 +172,12 @@ def integrate(a, b, /):
     if isinstance(a, (GridFun, Number)) and isinstance(b, (GridFun, Number)):
         gf = multiply(a, b)
         if isinstance(gf, GridFun):
-            return np.sum(np.multiply(
-                np.where(gf.y != 0, gf.grid.leb, 0),
-                np.where(gf.grid.leb != 0, gf.y, 0),
-            ))
+            return np.sum(
+                np.multiply(
+                    np.where(gf.y != 0, gf.grid.leb, 0),
+                    np.where(gf.grid.leb != 0, gf.y, 0),
+                )
+            )
 
         return gf
 

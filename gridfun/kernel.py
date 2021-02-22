@@ -8,6 +8,7 @@ import numpy as np
 from gridfun.abc import SignedMeasure, MeasurableFunction
 from gridfun.dirac import Dirac
 
+
 def compose(a, b, /):
     if isinstance(a, (SignedMeasure, Number)):
         if isinstance(b, Cols):
@@ -16,7 +17,7 @@ def compose(a, b, /):
                     a.__matmul__,
                     b,
                 ),
-                dtype='float',
+                dtype="float",
                 count=len(b),
             )
     if isinstance(a, Cols):
@@ -38,7 +39,7 @@ def compose(a, b, /):
             return np.array(
                 tuple(
                     map(
-                        methodcaller('__matmul__', b),
+                        methodcaller("__matmul__", b),
                         a,
                     )
                 )
@@ -49,7 +50,7 @@ def compose(a, b, /):
         return (a @ b.cols) @ b.rows
 
     return NotImplemented
-      
+
 
 class Rows(Sequence):
     def __init__(self, rows):

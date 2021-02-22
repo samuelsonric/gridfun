@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from numbers import Number
 
+
 def norm(a, /):
     return abs(a) @ 1
 

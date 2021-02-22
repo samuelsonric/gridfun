@@ -32,7 +32,7 @@ class Dirac(SignedMeasure):
         self.point = point
 
     def __matmul__(self, other):
-        return integrate(self, other)    
+        return integrate(self, other)
 
     def __abs__(self):
         return absolute(self)

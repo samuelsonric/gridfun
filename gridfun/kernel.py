@@ -70,7 +70,7 @@ class Rows(Sequence):
         return compose(self, other)
 
     def __rmatmul__(self, other):
-        return compose(self, other)
+        return compose(other, self)
 
 
 class Cols(Sequence):
@@ -91,7 +91,7 @@ class Cols(Sequence):
         return compose(self, other)
 
     def __rmatmul__(self, other):
-        return compose(self, other)
+        return compose(other, self)
 
 
 def iter_tensor_prod(a, b, /):
@@ -190,7 +190,7 @@ class Kernel(Sequence):
         return compose(self, other)
 
     def __rmatmul__(self, other):
-        return compose(self, other)
+        return compose(other, self)
 
     def __mul__(self, other):
         return tensor_prod(self, other)

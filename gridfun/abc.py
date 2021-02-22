@@ -1,13 +1,18 @@
 from abc import ABC, abstractmethod
+from collections.abc import Callable
+from numbers import Number
+
+def norm(a, /):
+    return abs(a) @ 1
 
 
-def normalize(sm, fun):
-    return fun // (sm @ fun)
+def normalize(a, b, /):
+    return b // (a @ abs(b))
 
 
 class SignedMeasure(ABC):
     @abstractmethod
-    def tensor_prod(self, other):
+    def __abs__(self):
         ...
 
     @abstractmethod
@@ -16,3 +21,9 @@ class SignedMeasure(ABC):
 
     def normalize(self, other):
         return normalize(self, other)
+
+
+class MeasurableFunction(Callable, SignedMeasure):
+    @abstractmethod
+    def __floordiv__(self, other):
+        ...

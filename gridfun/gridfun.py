@@ -7,7 +7,7 @@ from operator import attrgetter
 import numpy as np
 from wrapt import decorator
 
-from gridfun.abc import SignedMeasure
+from gridfun.abc import MeasurableFunction
 from gridfun.grid import Grid, join_grids
 
 
@@ -156,7 +156,7 @@ def mod(a, b, /):
     )
 
 
-def tensor_prod_gf_gf(a, b, /):
+def tensor_prod(a, b, /):
     if isinstance(a, GridFun) and isinstance(b, GridFun):
         return autocompress(
             GridFun(
@@ -164,6 +164,20 @@ def tensor_prod_gf_gf(a, b, /):
                 np.tensordot(a.y, b.y, axes=0),
             )
         )
+
+    return NotImplemented
+
+
+def integrate(a, b, /):
+    if isinstance(a, (GridFun, Number)) and isinstance(b, (GridFun, Number)):
+        gf = multiply(a, b)
+        if isinstance(gf, GridFun):
+            return np.sum(np.multiply(
+                np.where(gf.y != 0, gf.grid.leb, 0),
+                np.where(gf.grid.leb != 0, gf.y, 0),
+            ))
+
+        return gf
 
     return NotImplemented
 
@@ -216,9 +230,9 @@ def power(a, b, /):
 ############ Unary Operations ############
 
 
-def _gf(op, a, inj=False):
+def _gf(op, a, compress=True):
     gf = GridFun(a.grid, op(a.y))
-    if not inj:
+    if compress:
         gf = autocompress(gf)
     return gf
 
@@ -297,7 +311,7 @@ def autocompress(gf):
     return gf
 
 
-class GridFun(SignedMeasure, Callable):
+class GridFun(MeasurableFunction):
     def __init__(self, grid, y):
         self.grid = grid
         self.y = y
@@ -335,14 +349,6 @@ class GridFun(SignedMeasure, Callable):
     @property
     def size(self):
         return self.y.size
-
-    @cached_property
-    def leb(self):
-        arr = np.multiply(
-            np.where(self.y != 0, self.grid.leb, 0),
-            np.where(self.grid.leb != 0, self.y, 0),
-        )
-        return arr.sum()
 
     def compress(self, selectors, axis):
         return type(self)(
@@ -393,17 +399,13 @@ class GridFun(SignedMeasure, Callable):
         return mod(other, self)
 
     def __matmul__(self, other):
-        if isinstance(other, (GridFun, Number)):
-            return (self * other).leb
-        return NotImplemented
+        return integrate(self, other)
 
     def __rmatmul__(self, other):
-        if isinstance(other, (GridFun, Number)):
-            return (other * self).leb
-        return NotImplemented
+        return integrate(other, self)
 
     def tensor_prod(self, other):
-        return tensor_prod_gf_gf(self, other)
+        return tensor_prod(self, other)
 
     def __neg__(self):
         return negative(self)

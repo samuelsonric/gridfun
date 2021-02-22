@@ -58,7 +58,7 @@ def c_gf(op, a, b, /, compress=True):
     return gf
 
 
-def binary_op(inj=False, sc=False):
+def binary_op(inj=False):
     @decorator
     def wrapper(wrapped, instance, args, kwargs):
         a, b = args
@@ -71,35 +71,43 @@ def binary_op(inj=False, sc=False):
                     compress=True,
                 )
             if isinstance(b, Number):
-                if not b and sc:
-                    return a.zero(a.ndim)
-                else:
-                    return gf_c(
-                        wrapped,
-                        a,
-                        b,
-                        compress=not inj,
-                    )
+                return gf_c(
+                    wrapped,
+                    a,
+                    b,
+                    compress=not inj,
+                )
         if isinstance(a, Number):
             if isinstance(b, GridFun):
-                if not a and sc:
-                    return b.zero(b.ndim)
-                else:
-                    return c_gf(
-                        wrapped,
-                        a,
-                        b,
-                        compress=not inj,
-                    )
-            if isinstance(b, Number):
-                return wrapped(a, b)
+                return c_gf(
+                    wrapped,
+                    a,
+                    b,
+                    compress=not inj,
+                )
 
         return NotImplemented
 
     return wrapper
 
 
-@binary_op(inj=True, sc=False)
+@decorator
+def short_circuit(wrapped, instance, args, kwargs):
+    a, b = args
+    if isinstance(a, Number):
+        if a == 0:
+            return b.zero(b.ndim)
+        if a == 1:
+            return b
+    if isinstance(b, Number):
+        if b == 0:
+            return a.zero(a.ndim)
+        if b == 1:
+            return a
+    return wrapped(a, b)
+
+
+@binary_op(inj=True)
 def add(a, b, /):
     return np.add(
         a,
@@ -107,7 +115,7 @@ def add(a, b, /):
     )
 
 
-@binary_op(inj=True, sc=False)
+@binary_op(inj=True)
 def subtract(a, b, /):
     return np.subtract(
         a,
@@ -115,7 +123,8 @@ def subtract(a, b, /):
     )
 
 
-@binary_op(inj=True, sc=True)
+@short_circuit
+@binary_op(inj=True)
 def multiply(a, b, /):
     return np.multiply(
         np.where(b != 0, a, 0),
@@ -123,7 +132,8 @@ def multiply(a, b, /):
     )
 
 
-@binary_op(inj=True, sc=True)
+@short_circuit
+@binary_op(inj=True)
 def floor_divide(a, b, /):
     return np.divide(
         np.where(b != 0, a, 0),
@@ -131,7 +141,7 @@ def floor_divide(a, b, /):
     )
 
 
-@binary_op(inj=False, sc=False)
+@binary_op(inj=False)
 def minimum(a, b, /):
     return np.minimum(
         a,
@@ -139,7 +149,7 @@ def minimum(a, b, /):
     )
 
 
-@binary_op(inj=False, sc=False)
+@binary_op(inj=False)
 def maximum(a, b, /):
     return np.maximum(
         a,
@@ -147,7 +157,7 @@ def maximum(a, b, /):
     )
 
 
-@binary_op(inj=False, sc=False)
+@binary_op(inj=False)
 def mod(a, b, /):
     return np.where(
         b == 0,

@@ -132,7 +132,6 @@ def multiply(a, b, /):
     )
 
 
-@short_circuit
 @binary_op(inj=True)
 def floor_divide(a, b, /):
     return np.divide(
